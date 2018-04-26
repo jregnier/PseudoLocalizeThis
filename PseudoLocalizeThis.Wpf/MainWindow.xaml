@@ -1,0 +1,144 @@
+﻿<Window
+    x:Class="PseudoLocalizeThis.Wpf.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:PseudoLocalizeThis.Wpf.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:views="clr-namespace:PseudoLocalizeThis.Wpf.Views"
+    xmlns:vm="clr-namespace:PseudoLocalizeThis.Wpf.ViewModel"
+    Title="MainWindow"
+    Width="1300"
+    Height="800"
+    Background="{DynamicResource MaterialDesignPaper}"
+    DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
+    FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+    TextElement.FontSize="14"
+    TextElement.FontWeight="Medium"
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <DataTemplate DataType="{x:Type vm:SelectResourceFileViewModel}">
+            <views:SelectResourceFileView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <md:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainWindowMessageQueue, Path=MessageQueue}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ListView
+                        x:Name="OriginalElements"
+                        Grid.Row="0"
+                        ItemsSource="{Binding Path=ElementsCollection}"
+                        ScrollViewer.ScrollChanged="OriginalElements_ScrollChanged"
+                        Visibility="{Binding Path=ElementsCollection, Converter={StaticResource NullToVisibilityConverter}}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Path=Name}"
+                                    Header="Name" />
+                                <GridViewColumn
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Path=Value}"
+                                    Header="Value" />
+                                <GridViewColumn
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Path=Comment}"
+                                    Header="Comment" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <StackPanel
+                        Grid.Row="1"
+                        Margin="0,20,0,5"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Visibility="{Binding Path=ElementsCollection, Converter={StaticResource NullToVisibilityConverter}}">
+                        <StackPanel.Resources>
+                            <Style BasedOn="{StaticResource MaterialDesignCheckBox}" TargetType="{x:Type CheckBox}">
+                                <Setter Property="Margin" Value="0,0,20,0" />
+                            </Style>
+                        </StackPanel.Resources>
+                        <CheckBox Content="Brackets" IsChecked="{Binding Path=TransformSettings.Brackets}" />
+                        <CheckBox Content="Larger" IsChecked="{Binding Path=TransformSettings.Larger}" />
+                        <CheckBox Content="Mirror" IsChecked="{Binding Path=TransformSettings.Mirror}" />
+                        <Button
+                            Width="100"
+                            Margin="10,0,0,0"
+                            Command="{Binding Path=ApplyTransformCommand}"
+                            Content="APPLY"
+                            Style="{StaticResource MaterialDesignRaisedLightButton}" />
+                        <Button
+                            Width="100"
+                            Margin="10,0,0,0"
+                            Command="{Binding Path=SaveTransformCommand}"
+                            Content="SAVE"
+                            Style="{StaticResource MaterialDesignRaisedAccentButton}" />
+                    </StackPanel>
+                    <ListView
+                        x:Name="TransformedElements"
+                        Grid.Row="2"
+                        ItemsSource="{Binding Path=TransformedElementsCollection}"
+                        ScrollViewer.ScrollChanged="TransformedElements_ScrollChanged"
+                        Visibility="{Binding Path=TransformedElementsCollection, Converter={StaticResource NullToVisibilityConverter}}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Path=Name}"
+                                    Header="Name" />
+                                <GridViewColumn
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Path=Value}"
+                                    Header="Value" />
+                                <GridViewColumn
+                                    Width="Auto"
+                                    DisplayMemberBinding="{Binding Path=Comment}"
+                                    Header="Comment" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+                <md:ColorZone
+                    Grid.Row="1"
+                    Padding="8"
+                    md:ShadowAssist.ShadowDepth="Depth2"
+                    Mode="PrimaryMid">
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Text="{Binding Path=SelectedResourceFile}" />
+                </md:ColorZone>
+            </Grid>
+        </md:DialogHost>
+        <Button
+            Margin="0,0,20,20"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Command="{Binding Path=AddResourceFileCommand}"
+            Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+            ToolTip="Add Resource File">
+            <md:PackIcon
+                Width="30"
+                Height="30"
+                Kind="plus" />
+        </Button>
+        <md:Snackbar x:Name="MainWindowMessageQueue" MessageQueue="{Binding Path=MessageQueue}" />
+    </Grid>
+</Window>
